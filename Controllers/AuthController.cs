@@ -13,7 +13,7 @@ namespace race_day.Controllers;
 [Route("api/[controller]")]
 [Produces("application/json")]
 public class AuthController : ControllerBase
-{
+{// Inject the DbContext into the controller
     private readonly RaceDayDbContext _context;
 
     public AuthController(RaceDayDbContext context)
