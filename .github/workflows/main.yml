@@ -32,7 +32,15 @@ jobs:
         done
 
     - name: Build All Projects
-      run: dotnet build --configuration Release
+      run: |
+        for proj in $(find . -name "*.csproj"); do
+          echo "Building $proj..."
+          dotnet build "$proj" --configuration Release
+        done
 
     - name: Run All Tests
-      run: dotnet test --configuration Release --verbosity normal
+      run: |
+        for proj in $(find . -name "*Test*.csproj"); do
+          echo "Testing $proj..."
+          dotnet test "$proj" --configuration Release --verbosity normal
+        done
