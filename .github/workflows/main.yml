@@ -19,24 +19,21 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Auto-Fix Folder Structure
+    - name: Isolate Main Project from Tests
       run: |
-        echo "Checking for nested test folders..."
-        # Finds TestProject1 if it is hidden inside the main project and moves it out
-        TEST_DIR=$(find . -mindepth 2 -type d -name "TestProject1" | head -n 1)
-        if [ -n "$TEST_DIR" ]; then
-          echo "Moving $TEST_DIR out of the main project folder to prevent API compile errors..."
-          mv "$TEST_DIR" ./TestProject1
-        fi
+        MAIN_PROJ=$(find . -name "*.csproj" ! -path "*/Test*" | head -n 1)
+        echo "Modifying $MAIN_PROJ to ignore test files..."
+        # Removes the closing tag, adds an exclusion block for test folders, and closes it
+        sed -i 's/<\/Project>//g' "$MAIN_PROJ"
+        echo -e "\n  <ItemGroup>\n    <Compile Remove=\"**/*Test*/**\" />\n    <Content Remove=\"**/*Test*/**\" />\n  </ItemGroup>\n</Project>" >> "$MAIN_PROJ"
 
-    - name: Auto-Fix Packages and Project Links
+    - name: Auto-Fix Test Packages and Links
       run: |
         MAIN_PROJ=$(find . -name "*.csproj" ! -path "*/Test*" | head -n 1)
         
         for proj in $(find . -name "*Test*.csproj"); do
           echo "Fixing packages and linking main project for $proj..."
           
-          # Force the correct packages
           dotnet add "$proj" package xunit
           dotnet add "$proj" package Microsoft.NET.Test.Sdk
           dotnet add "$proj" package xunit.runner.visualstudio
@@ -44,7 +41,6 @@ jobs:
           dotnet add "$proj" package Microsoft.AspNetCore.Mvc.Testing --version 8.0.0
           dotnet add "$proj" package Microsoft.EntityFrameworkCore.InMemory --version 8.0.0
           
-          # Link the test project to the main API project dynamically
           sed -i '/<ProjectReference/d' "$proj"
           dotnet add "$proj" reference "$MAIN_PROJ"
         done
