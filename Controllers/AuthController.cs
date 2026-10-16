@@ -22,7 +22,6 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    // Changed to [FromForm] so Swagger creates individual text boxes for each field
     public async Task<IActionResult> Register([FromQuery] RegisterRequestDto dto)
     {
         if (dto.Role != "Organiser" && dto.Role != "Participant")
