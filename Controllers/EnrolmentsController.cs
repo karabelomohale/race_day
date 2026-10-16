@@ -13,7 +13,7 @@ public record CreateEnrolmentDto(int CategoryId, string EmergencyContact, string
 [Route("api/[controller]")]
 [Produces("application/json")]
 public class EnrolmentsController : ControllerBase
-{
+{// Inject the DbContext into the controller
     private readonly RaceDayDbContext _context;
 
     public EnrolmentsController(RaceDayDbContext context)
