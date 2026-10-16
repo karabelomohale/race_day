@@ -53,7 +53,6 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    // Changed to [FromForm] here as well
     public async Task<IActionResult> Login([FromQuery] LoginRequestDto dto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
