@@ -27,7 +27,7 @@ public class EnrolmentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> CreateEnrolment([FromQuery] CreateEnrolmentDto dto) // Changed to [FromForm]
+    public async Task<IActionResult> CreateEnrolment([FromQuery] CreateEnrolmentDto dto) 
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
