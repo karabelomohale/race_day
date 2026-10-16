@@ -8,7 +8,7 @@ using race_day.Models;
 namespace race_day.Controllers;
 
 public record CreateEnrolmentDto(int CategoryId, string EmergencyContact, string? MedicalAidNumber);
-
+// This DTO is used to receive enrolment data from the client.
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
