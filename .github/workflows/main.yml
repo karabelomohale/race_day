@@ -21,15 +21,14 @@ jobs:
 
     - name: Auto-Fix Missing Test Packages
       run: |
-        # Automatically injects required testing tools into any test project it finds
         for proj in $(find . -name "*Test*.csproj"); do
           echo "Fixing packages for $proj..."
           dotnet add "$proj" package xunit
           dotnet add "$proj" package Microsoft.NET.Test.Sdk
           dotnet add "$proj" package xunit.runner.visualstudio
           dotnet add "$proj" package FluentAssertions
-          dotnet add "$proj" package Microsoft.AspNetCore.Mvc.Testing
-          dotnet add "$proj" package Microsoft.EntityFrameworkCore.InMemory
+          dotnet add "$proj" package Microsoft.AspNetCore.Mvc.Testing --version 8.0.0
+          dotnet add "$proj" package Microsoft.EntityFrameworkCore.InMemory --version 8.0.0
         done
 
     - name: Build All Projects
