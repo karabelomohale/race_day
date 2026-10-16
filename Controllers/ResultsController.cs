@@ -33,7 +33,7 @@ public class ResultsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CaptureResult([FromForm] CaptureResultDto dto)
+    public async Task<IActionResult> CaptureResult([FromQuery] CaptureResultDto dto)
     {
         var enrolment = await _context.EventEnrolments.FindAsync(dto.EnrolmentId);
         if (enrolment == null)

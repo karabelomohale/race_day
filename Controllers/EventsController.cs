@@ -53,7 +53,7 @@ public class EventsController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "Organiser")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateEvent([FromForm] CreateEventDto dto) // Changed to [FromForm]
+    public async Task<IActionResult> CreateEvent([FromQuery] CreateEventDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userIdClaim == null) return Unauthorized();
@@ -81,7 +81,7 @@ public class EventsController : ControllerBase
     [Authorize(Roles = "Organiser")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateEvent(int id, [FromForm] UpdateEventDto dto) // Changed to [FromForm]
+    public async Task<IActionResult> UpdateEvent(int id, [FromQuery] UpdateEventDto dto) // Changed to [FromForm]
     {
         var ev = await _context.Events.FindAsync(id);
         if (ev == null) return NotFound(new { message = "Event not found." });
@@ -122,7 +122,7 @@ public class EventsController : ControllerBase
     [Authorize(Roles = "Organiser")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddCategory(int eventId, [FromForm] CreateCategoryDto dto) // Changed to [FromForm]
+    public async Task<IActionResult> AddCategory(int eventId, [FromQuery] CreateCategoryDto dto) 
     {
         var ev = await _context.Events.FindAsync(eventId);
         if (ev == null) return NotFound(new { message = "Event not found." });

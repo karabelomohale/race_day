@@ -1,42 +1,52 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace race_day.DTOs;
 
 public class RegisterRequestDto
 {
     [Required]
-    [DefaultValue("")]
+    [StringLength(50)]
     public string FirstName { get; set; } = string.Empty;
 
     [Required]
-    [DefaultValue("")]
+    [StringLength(50)]
     public string LastName { get; set; } = string.Empty;
 
     [Required]
-    [DefaultValue("")]
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     [Required]
-    [DefaultValue("")]
+    [MinLength(6)]
     public string Password { get; set; } = string.Empty;
 
     [Required]
-    [DefaultValue("")]
-    public string Role { get; set; } = string.Empty;
+    public string Role { get; set; } = "Participant"; // "Organiser" or "Participant"
 
-    [Required(AllowEmptyStrings = true)]
-    [DefaultValue("")]
-    public string PhoneNumber { get; set; } = string.Empty;
+    [Phone]
+    public string? PhoneNumber { get; set; }
 }
 
 public class LoginRequestDto
 {
     [Required]
-    [DefaultValue("")]
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     [Required]
-    [DefaultValue("")]
     public string Password { get; set; } = string.Empty;
+}
+
+public class UpdateProfileDto
+{
+    [Required]
+    [StringLength(50)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(50)]
+    public string LastName { get; set; } = string.Empty;
+
+    [Phone]
+    public string? PhoneNumber { get; set; }
 }

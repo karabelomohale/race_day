@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     // Changed to [FromForm] so Swagger creates individual text boxes for each field
-    public async Task<IActionResult> Register([FromForm] RegisterRequestDto dto)
+    public async Task<IActionResult> Register([FromQuery] RegisterRequestDto dto)
     {
         if (dto.Role != "Organiser" && dto.Role != "Participant")
         {
@@ -55,7 +55,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     // Changed to [FromForm] here as well
-    public async Task<IActionResult> Login([FromForm] LoginRequestDto dto)
+    public async Task<IActionResult> Login([FromQuery] LoginRequestDto dto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
 

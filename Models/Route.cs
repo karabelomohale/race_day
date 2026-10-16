@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace race_day.Models;
 
 public class Route
-{
+{// Route model representing a race route
     [Key]
     public int RouteId { get; set; }
 

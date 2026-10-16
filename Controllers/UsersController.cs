@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace race_day.Controllers;
 
-public record UpdateProfileDto(string FirstName, string LastName, string? PhoneNumber, string? ClubName);
+public record UpdateProfileDto(string FirstName, string LastName, string? PhoneNumber);
 
 [ApiController]
 [Route("api/[controller]")]
@@ -57,7 +57,7 @@ public class UsersController : ControllerBase
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileDto dto)
+    public async Task<IActionResult> UpdateProfile([FromQuery] UpdateProfileDto dto)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var user = await _context.Users.FindAsync(userId);
