@@ -21,25 +21,22 @@ jobs:
 
     - name: Restore dependencies
       run: |
-        if [ -f "TestProject1/TestProject1.csproj" ]; then
-          dotnet restore
-        else
-          echo "TestProject1 not found on remote; restoring main project only."
-          dotnet restore race_day/race_day.csproj
-        fi
+        # Find any csproj or sln that actually exists on GitHub
+        MAIN_PROJ=$(find . -name "*.csproj" ! -path "*/Test*" | head -n 1)
+        echo "Found main project: $MAIN_PROJ"
+        dotnet restore "$MAIN_PROJ"
 
     - name: Build project
       run: |
-        if [ -f "TestProject1/TestProject1.csproj" ]; then
-          dotnet build --no-restore --configuration Release
-        else
-          dotnet build race_day/race_day.csproj --no-restore --configuration Release
-        fi
+        MAIN_PROJ=$(find . -name "*.csproj" ! -path "*/Test*" | head -n 1)
+        dotnet build "$MAIN_PROJ" --no-restore --configuration Release
 
     - name: Run Tests
       run: |
-        if [ -f "TestProject1/TestProject1.csproj" ]; then
-          dotnet test TestProject1/TestProject1.csproj --configuration Release --verbosity normal
+        TEST_PROJ=$(find . -name "*Test*.csproj" | head -n 1)
+        if [ -n "$TEST_PROJ" ] && [ -f "$TEST_PROJ" ]; then
+          echo "Found test project: $TEST_PROJ"
+          dotnet test "$TEST_PROJ" --configuration Release --verbosity normal
         else
-          echo "Skipping test execution until TestProject1 is pushed from local."
+          echo "No test project detected in repository yet. Build succeeded."
         fi
