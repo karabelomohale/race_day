@@ -19,24 +19,21 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
+    - name: Auto-Fix Missing Test Packages
       run: |
-        # Find any csproj or sln that actually exists on GitHub
-        MAIN_PROJ=$(find . -name "*.csproj" ! -path "*/Test*" | head -n 1)
-        echo "Found main project: $MAIN_PROJ"
-        dotnet restore "$MAIN_PROJ"
+        # Automatically injects required testing tools into any test project it finds
+        for proj in $(find . -name "*Test*.csproj"); do
+          echo "Fixing packages for $proj..."
+          dotnet add "$proj" package xunit
+          dotnet add "$proj" package Microsoft.NET.Test.Sdk
+          dotnet add "$proj" package xunit.runner.visualstudio
+          dotnet add "$proj" package FluentAssertions
+          dotnet add "$proj" package Microsoft.AspNetCore.Mvc.Testing
+          dotnet add "$proj" package Microsoft.EntityFrameworkCore.InMemory
+        done
 
-    - name: Build project
-      run: |
-        MAIN_PROJ=$(find . -name "*.csproj" ! -path "*/Test*" | head -n 1)
-        dotnet build "$MAIN_PROJ" --no-restore --configuration Release
+    - name: Build All Projects
+      run: dotnet build --configuration Release
 
-    - name: Run Tests
-      run: |
-        TEST_PROJ=$(find . -name "*Test*.csproj" | head -n 1)
-        if [ -n "$TEST_PROJ" ] && [ -f "$TEST_PROJ" ]; then
-          echo "Found test project: $TEST_PROJ"
-          dotnet test "$TEST_PROJ" --configuration Release --verbosity normal
-        else
-          echo "No test project detected in repository yet. Build succeeded."
-        fi
+    - name: Run All Tests
+      run: dotnet test --configuration Release --verbosity normal
