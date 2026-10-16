@@ -19,6 +19,14 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Auto-Cleanup Misplaced Files
+      run: |
+        echo "Removing test files accidentally placed in the main project folder..."
+        find . -path "*/race_day/UnitTest1.cs" -exec rm -f {} +
+        find . -path "*/race_day/CustomWebApplicationFactory.cs" -exec rm -f {} +
+        find . -name "UnitTest1.cs" -not -path "*/TestProject1/*" -exec rm -f {} +
+        find . -name "CustomWebApplicationFactory.cs" -not -path "*/TestProject1/*" -exec rm -f {} +
+
     - name: Auto-Fix Missing Test Packages
       run: |
         for proj in $(find . -name "*Test*.csproj"); do
