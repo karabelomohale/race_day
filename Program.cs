@@ -1,7 +1,9 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using race_day.Data;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,36 +12,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Session configuration
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromHours(2);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-// Cookie Authentication configuration
+// JWT Authentication configuration
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddCookie(options =>
+.AddJwtBearer(options =>
 {
-    options.Cookie.Name = "RaceDay.AuthSession";
-    options.ExpireTimeSpan = TimeSpan.FromHours(2);
+    // Hardcoded fallback to ensure it NEVER fails due to a missing appsettings.json file
+    var key = builder.Configuration["Jwt:Key"] ?? "RaceDay_SuperSecretSecureKey_2026_Minimum32Chars!";
 
-    // Returns API error codes instead of redirecting to a missing login webpage
-    options.Events.OnRedirectToLogin = context =>
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        ClockSkew = TimeSpan.Zero
     };
-    options.Events.OnRedirectToAccessDenied = context =>
+
+    options.Events = new JwtBearerEvents
     {
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine("\n\n=== TOKEN VALIDATION FAILED ===");
+            Console.WriteLine(context.Exception.Message);
+            Console.WriteLine("===============================\n\n");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -58,7 +61,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger integration
+// Swagger integration updated to support JWT input
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -66,6 +69,30 @@ builder.Services.AddSwaggerGen(options =>
         Title = "RaceDay API",
         Version = "v1",
         Description = "RESTful API for the RaceDay endurance sports platform in South Africa."
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your token below."
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
@@ -77,10 +104,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// FIXED: Disabled to prevent the API from forcing a redirect that drops the authorization header
+// app.UseHttpsRedirection();
 
-// Middleware order is critical here
-app.UseSession();
+// Authentication MUST be registered before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 

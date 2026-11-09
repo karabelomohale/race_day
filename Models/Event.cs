@@ -39,6 +39,9 @@ public class Event
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    // NEW: Added the ImageUrl property to store your wwwroot filename!
+    public string? ImageUrl { get; set; }
+
     // Navigation properties
     public ICollection<Category> Categories { get; set; } = new List<Category>();
     public ICollection<Route> Routes { get; set; } = new List<Route>();

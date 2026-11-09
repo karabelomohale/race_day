@@ -8,8 +8,8 @@ public class EventEnrolment
     [Key]
     public int EnrolmentId { get; set; }
 
-    [Required]
-    public int CategoryId { get; set; }
+    // 1. REMOVED [Required] and added '?' to make it nullable
+    public int? CategoryId { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
     public Category? Category { get; set; }

@@ -5,7 +5,7 @@ namespace race_day.DTOs;
 public class CreateEnrolmentDto
 {
     [Required]
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
     [Required]
     [Phone]
